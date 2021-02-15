@@ -1,6 +1,6 @@
 import Typography from "@material-ui/core/Typography";
 import { StatsType } from "@slippi/slippi-js";
-import { FileResult } from "common/replayBrowser/types";
+import { FileDetails } from "common/replayBrowser/types";
 import _ from "lodash";
 import React from "react";
 import styled from "styled-components";
@@ -10,7 +10,7 @@ import { OverallTable } from "./OverallTable";
 import { PunishTable } from "./PunishTable";
 
 export interface GameProfileProps {
-  file: FileResult;
+  file: FileDetails;
   stats: StatsType;
 }
 

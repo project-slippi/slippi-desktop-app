@@ -11,7 +11,7 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { GameStartType, MetadataType, PlayerType, stages as stageUtils, StatsType } from "@slippi/slippi-js";
 import { colors } from "common/colors";
 import { extractPlayerNames, PlayerNames } from "common/matchNames";
-import { FileResult } from "common/replayBrowser";
+import { FileDetails } from "common/replayBrowser";
 import { convertFrameCountToDurationString, monthDayHourFormat } from "common/time";
 import _ from "lodash";
 import moment from "moment";
@@ -119,7 +119,7 @@ const PlayerInfoDisplay: React.FC<PlayerInfoDisplayProps> = ({ settings, metadat
 };
 
 export interface GameProfileHeaderProps {
-  file: FileResult;
+  file: FileDetails;
   index: number;
   total: number;
   onNext: () => void;
@@ -191,7 +191,7 @@ const Header = styled.div<{
 `;
 
 const GameDetails: React.FC<{
-  file: FileResult;
+  file: FileDetails;
   stats: StatsType | null;
 }> = ({ file, stats }) => {
   let stageName = "Unknown";

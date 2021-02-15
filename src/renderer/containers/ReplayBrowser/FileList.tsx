@@ -26,13 +26,14 @@ const StyledListItemIcon = withStyles(() => ({
 
 // This is the container for all the replays visible, the autosizer will handle the virtualization portion
 const FileListResults: React.FC<{
+  currentFolder: string;
   files: FileResult[];
   scrollRowItem: number;
   onOpenMenu: (index: number, element: HTMLElement) => void;
   onSelect: (index: number) => void;
   onPlay: (index: number) => void;
   setScrollRowItem: (row: number) => void;
-}> = ({ scrollRowItem, files, onSelect, onPlay, onOpenMenu, setScrollRowItem }) => {
+}> = ({ currentFolder, files, scrollRowItem, onOpenMenu, onSelect, onPlay, setScrollRowItem }) => {
   // Keep a reference to the list so we can control the scroll position
   const listRef = React.createRef<List>();
   // Keep track of the latest scroll position
@@ -69,7 +70,7 @@ const FileListResults: React.FC<{
     if (listRef.current) {
       listRef.current.scrollToItem(0);
     }
-  }, [files]);
+  }, [currentFolder]);
 
   return (
     <AutoSizer>
@@ -95,13 +96,14 @@ const FileListResults: React.FC<{
 // the container containing FileListResults. figure the rest out yourself
 // to simplify the DOM, the submenu for each row is essentially the same until you actually click on it for a given row.
 export const FileList: React.FC<{
+  currentFolder: string;
   files: FileResult[];
   scrollRowItem?: number;
   setScrollRowItem: (row: number) => void;
   onDelete: (filepath: string) => void;
   onSelect: (index: number) => void;
   onPlay: (index: number) => void;
-}> = ({ scrollRowItem = 0, files, onSelect, onPlay, onDelete, setScrollRowItem }) => {
+}> = ({ currentFolder, files, scrollRowItem = 0, setScrollRowItem, onDelete, onSelect, onPlay }) => {
   const [menuItem, setMenuItem] = React.useState<null | {
     index: number;
     anchorEl: HTMLElement;
@@ -116,14 +118,14 @@ export const FileList: React.FC<{
 
   const handleRevealLocation = () => {
     if (menuItem) {
-      shell.showItemInFolder(files[menuItem.index].fullPath);
+      shell.showItemInFolder(files[menuItem.index].header.fullPath);
     }
     handleClose();
   };
 
   const handleDelete = () => {
     if (menuItem) {
-      onDelete(files[menuItem.index].fullPath);
+      onDelete(files[menuItem.index].header.fullPath);
     }
     handleClose();
   };
@@ -139,6 +141,7 @@ export const FileList: React.FC<{
           onOpenMenu={onOpenMenu}
           onSelect={onSelect}
           onPlay={onPlay}
+          currentFolder={currentFolder}
           files={files}
           scrollRowItem={scrollRowItem}
           setScrollRowItem={setScrollRowItem}

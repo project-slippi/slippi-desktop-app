@@ -4,6 +4,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import IconButton from "@material-ui/core/IconButton";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Tooltip from "@material-ui/core/Tooltip";
+import Typography from "@material-ui/core/Typography";
 import EqualizerIcon from "@material-ui/icons/Equalizer";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
@@ -81,72 +82,81 @@ export const ReplayFile: React.FC<ReplayFileProps> = ({
   style,
   onSelect,
   onPlay,
-  startTime,
-  settings,
-  name,
-  metadata,
-  lastFrame,
-  fullPath,
+  header,
+  details,
 }) => {
-  const date = new Date(startTime ? Date.parse(startTime) : 0);
   const classes = useStyles();
+  if (details !== null) {
+    const date = new Date(details.startTime ? Date.parse(details.startTime) : 0);
 
-  let stageName = "Unknown";
-  try {
-    if (settings.stageId !== null) {
-      stageName = stageUtils.getStageName(settings.stageId);
+    let stageName = "Unknown";
+    try {
+      if (details.settings.stageId !== null) {
+        stageName = stageUtils.getStageName(details.settings.stageId);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
 
-  return (
-    <div style={style}>
-      <Card className={classes.root}>
-        {settings.stageId !== null && (
-          <CardMedia className={classes.cover} image={getStageImage(settings.stageId)} title={stageName}>
-            {lastFrame !== null && (
-              <div className={classes.duration}>{convertFrameCountToDurationString(lastFrame)}</div>
-            )}
-          </CardMedia>
-        )}
-        <div className={classes.details}>
-          <div style={{ display: "flex", flexDirection: "row", flex: 1 }}>
-            <CardContent className={classes.content}>
-              <TeamElements settings={settings} metadata={metadata} />
-            </CardContent>
-            <div className={classes.controls}>
-              <Tooltip title="View replay">
-                <IconButton onClick={onPlay}>
-                  <PlayArrowIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Show stats">
-                <IconButton onClick={onSelect}>
-                  <EqualizerIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="More options">
-                <IconButton
-                  onClick={(e) => {
-                    onOpenMenu(index, e.currentTarget as any);
-                  }}
-                >
-                  <MoreVertIcon />
-                </IconButton>
-              </Tooltip>
+    return (
+      <div style={style}>
+        <Card className={classes.root}>
+          {details.settings.stageId !== null && (
+            <CardMedia className={classes.cover} image={getStageImage(details.settings.stageId)} title={stageName}>
+              {details.lastFrame !== null && (
+                <div className={classes.duration}>{convertFrameCountToDurationString(details.lastFrame)}</div>
+              )}
+            </CardMedia>
+          )}
+          <div className={classes.details}>
+            <div style={{ display: "flex", flexDirection: "row", flex: 1 }}>
+              <CardContent className={classes.content}>
+                <TeamElements settings={details.settings} metadata={details.metadata} />
+              </CardContent>
+              <div className={classes.controls}>
+                <Tooltip title="View replay">
+                  <IconButton onClick={onPlay}>
+                    <PlayArrowIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Show stats">
+                  <IconButton onClick={onSelect}>
+                    <EqualizerIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="More options">
+                  <IconButton
+                    onClick={(e) => {
+                      onOpenMenu(index, e.currentTarget as any);
+                    }}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </div>
+            <div className={classes.footer}>
+              <div>{monthDayHourFormat(moment(date))}</div>
+              <div>
+                <DraggableFile fullPath={header.fullPath} className={classes.filename}>
+                  {header.name}
+                </DraggableFile>
+              </div>
             </div>
           </div>
-          <div className={classes.footer}>
-            <div>{monthDayHourFormat(moment(date))}</div>
-            <div>
-              <DraggableFile fullPath={fullPath} className={classes.filename}>
-                {name}
-              </DraggableFile>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
+        </Card>
+      </div>
+    );
+  } else {
+    const message = `Loading ${header.name}...`;
+    return (
+      <div style={style}>
+        <Card className={classes.root}>
+          <Typography variant="h6" style={{ marginTop: 20 }}>
+            {message}
+          </Typography>
+        </Card>
+      </div>
+    );
+  }
 };

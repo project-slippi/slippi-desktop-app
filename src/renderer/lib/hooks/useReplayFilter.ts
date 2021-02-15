@@ -21,13 +21,15 @@ type StoreState = {
 
 type StoreReducers = {
   setOptions: (options: Partial<FilterOptions>) => void;
+  generateFilterFunction: () => (file: FileResult) => boolean;
+  generateSortFunction: () => (a: FileResult, b: FileResult) => number;
 };
 
 const initialState: StoreState = {
   options: { ...initialFilterOptions },
 };
 
-const useReplayFilterStore = create<StoreState & StoreReducers>((set) => ({
+export const useReplayFilterStore = create<StoreState & StoreReducers>((set, get) => ({
   // Set the initial state
   ...initialState,
 
@@ -38,41 +40,46 @@ const useReplayFilterStore = create<StoreState & StoreReducers>((set) => ({
       }),
     );
   },
-}));
 
-const generateFilterFunction = (filterOptions: FilterOptions): ((file: FileResult) => boolean) => (file) => {
-  if (filterOptions.hideShortGames) {
-    if (file.lastFrame !== null && file.lastFrame <= 30 * 60) {
-      return false;
+  generateFilterFunction: () => (file: FileResult) => {
+    const { options } = get();
+    if (options.hideShortGames) {
+      if (file.details !== null && file.details.lastFrame !== null && file.details.lastFrame <= 30 * 60) {
+        return false;
+      }
     }
-  }
 
-  const matchable = extractAllPlayerNames(file.settings, file.metadata);
-  if (!filterOptions.searchText) {
+    if (options.searchText && file.details !== null) {
+      const matchable = extractAllPlayerNames(file.details.settings, file.details.metadata);
+      if (matchable.length === 0) {
+        return false;
+      }
+      return namesMatch([options.searchText], matchable);
+    }
     return true;
-  } else if (matchable.length === 0) {
-    return false;
-  }
-  return namesMatch([filterOptions.searchText], matchable);
-};
+  },
 
-const generateSortFunction = (filterOptions: FilterOptions): ((a: FileResult, b: FileResult) => number) => (a, b) => {
-  const aTime = a.startTime ? Date.parse(a.startTime) : 0;
-  const bTime = b.startTime ? Date.parse(b.startTime) : 0;
-  if (filterOptions.sortByNewestFirst) {
-    return bTime - aTime;
-  }
-  return aTime - bTime;
-};
+  generateSortFunction: () => (a: FileResult, b: FileResult) => {
+    const { options } = get();
+    const aTime = a.details?.startTime ? Date.parse(a.details.startTime) : a.header.birthtime.getTime();
+    const bTime = b.details?.startTime ? Date.parse(b.details.startTime) : b.header.birthtime.getTime();
+    if (options.sortByNewestFirst) {
+      return bTime - aTime;
+    }
+    return aTime - bTime;
+  },
+}));
 
 export const useReplayFilter = () => {
   const filterOptions = useReplayFilterStore((store) => store.options);
   const setFilterOptions = useReplayFilterStore((store) => store.setOptions);
-  const filterFunction = generateFilterFunction(filterOptions);
-  const sortFunction = generateSortFunction(filterOptions);
+  const filterFunction = useReplayFilterStore((store) => store.generateFilterFunction());
+  const sortFunction = useReplayFilterStore((store) => store.generateSortFunction());
 
-  const sortAndFilterFiles = (files: FileResult[]) => {
-    return files.filter(filterFunction).sort(sortFunction);
+  const sortAndFilterFiles = (files: Map<string, FileResult>) => {
+    return Array.from(files, ([_, value]) => value)
+      .filter(filterFunction)
+      .sort(sortFunction);
   };
   const clearFilter = () => {
     return setFilterOptions({ searchText: "", hideShortGames: false });
