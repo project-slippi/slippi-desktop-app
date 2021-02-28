@@ -18,6 +18,7 @@ import { useReplays } from "@/store/replays";
 import { useSettings } from "@/store/settings";
 
 import { ReplayFileStats } from "../ReplayFileStats";
+import { PlayerStats } from "../stats";
 import { FileList } from "./FileList";
 import { FilterToolbar } from "./FilterToolbar";
 import { FolderTreeNode } from "./FolderTreeNode";
@@ -32,6 +33,10 @@ export const ReplayBrowser: React.FC = () => {
   const selectFile = useReplays((store) => store.selectFile);
   const playFile = useReplays((store) => store.playFile);
   const clearSelectedFile = useReplays((store) => store.clearSelectedFile);
+  const choosePlayer = useReplays((store) => store.initPlayer);
+  const selectPlayer = (p: string) => choosePlayer(p, { characters: [], opponents: [], opponentCharacters: [] });
+  const selectedPlayer = useReplays((store) => store.selectedPlayer.player);
+  const clearSelectedPlayer = useReplays((store) => store.clearSelectedPlayer);
   const loading = useReplays((store) => store.loading);
   const currentFolder = useReplays((store) => store.currentFolder);
   const folders = useReplays((store) => store.folders);
@@ -69,7 +74,9 @@ export const ReplayBrowser: React.FC = () => {
 
   return (
     <Outer>
-      {selectedItem !== null ? (
+      {selectedPlayer !== null ? (
+        <PlayerStats player={selectedPlayer} onClose={clearSelectedPlayer} />
+      ) : selectedItem !== null ? (
         <ReplayFileStats
           index={selectedItem}
           total={filteredFiles.length}
@@ -132,6 +139,7 @@ export const ReplayBrowser: React.FC = () => {
                     onDelete={deleteFile}
                     onSelect={(index: number) => setSelectedItem(index)}
                     onPlay={(index: number) => playSelectedFile(index)}
+                    onPlayerClick={selectPlayer}
                     files={filteredFiles}
                     scrollRowItem={scrollRowItem}
                     setScrollRowItem={setScrollRowItem}
@@ -168,7 +176,8 @@ export const ReplayBrowser: React.FC = () => {
 
 const LoadingBox: React.FC = () => {
   const progress = useReplays((store) => store.progress);
-  let message = "Loading...";
+  let message =
+    progress && progress.isSaving ? `Storing ${progress.total} new files, this can take a while...` : "Loading...";
   if (progress !== null) {
     message += ` ${Math.floor((progress.current / progress.total) * 100)}%`;
   }

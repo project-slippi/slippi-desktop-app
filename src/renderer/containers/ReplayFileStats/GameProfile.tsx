@@ -20,7 +20,7 @@ const TableContainer = styled.div`
   grid-gap: 20px;
 `;
 
-const StatSection: React.FC<{
+export const StatSection: React.FC<{
   title: string;
 }> = (props) => {
   return (

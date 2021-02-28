@@ -28,9 +28,11 @@ interface PlayerIndicatorProps {
   player: PlayerType;
   name: string;
   isTeams?: boolean;
+  link: boolean;
+  onClick: (player: string) => void;
 }
 
-const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ player, name, isTeams }) => {
+const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ player, name, isTeams, onClick }) => {
   const charIcon = getCharacterIcon(player.characterId, player.characterColor);
   const teamId = isTeams ? player.teamId : null;
   const color = getColor(player.port, teamId);
@@ -38,7 +40,11 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ player, name, isTeams
 
   return (
     <Badge component="div" classes={{ badge: classes.badge }} badgeContent={`P${player.port}`}>
-      <Chip avatar={<Avatar alt="Natacha" src={charIcon} variant="square" />} label={name} />
+      <Chip
+        onClick={() => onClick(name)}
+        avatar={<Avatar alt="Natacha" src={charIcon} variant="square" />}
+        label={name}
+      />
     </Badge>
   );
 };
@@ -56,9 +62,10 @@ const Outer = styled.div`
 export interface TeamElementProps {
   settings: GameStartType;
   metadata: MetadataType | null;
+  onClick: (player: string) => void;
 }
 
-export const TeamElements: React.FC<TeamElementProps> = ({ settings, metadata }) => {
+export const TeamElements: React.FC<TeamElementProps> = ({ settings, metadata, onClick }) => {
   // If this is a teams game, group by teamId, otherwise group players individually
   const teams = _.chain(settings.players)
     .groupBy((player) => (settings.isTeams ? player.teamId : player.port))
@@ -76,6 +83,8 @@ export const TeamElements: React.FC<TeamElementProps> = ({ settings, metadata })
           player={player}
           isTeams={Boolean(settings.isTeams)}
           name={names.code || names.tag || backupName}
+          link={names.code !== null}
+          onClick={onClick}
         />,
       );
     });

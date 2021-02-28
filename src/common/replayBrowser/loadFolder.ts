@@ -1,8 +1,24 @@
 import * as fs from "fs-extra";
 import path from "path";
 
-import { loadFile } from "./loadFile";
-import { FileLoadResult, FileResult } from "./types";
+import { deleteReplays, getFolderFiles, getFolderReplays, saveReplays } from "./dao";
+import { parseReplays } from "./statsComputer";
+import { FileLoadResult } from "./types";
+
+const filterReplays = async (folder: string) => {
+  const loadedFiles = await getFolderFiles(folder);
+  const dirfiles = await fs.readdir(folder, { withFileTypes: true });
+  const slpFiles = dirfiles
+    .filter((dirent) => dirent.isFile() && path.extname(dirent.name) === ".slp")
+    .map((d) => path.resolve(folder, d.name));
+
+  const toLoad = slpFiles.filter((file) => !loadedFiles.includes(file));
+  const toDelete = loadedFiles.filter((file) => !slpFiles.includes(file));
+
+  console.log({ loadedFiles });
+  console.log({ total: slpFiles.length, toLoad, toDelete });
+  return { total: slpFiles.length, toLoad, toDelete };
+};
 
 export async function loadFolder(
   folder: string,
@@ -16,44 +32,23 @@ export async function loadFolder(
     };
   }
 
-  const results = await fs.readdir(folder, { withFileTypes: true });
-  const slpFiles = results.filter((dirent) => dirent.isFile() && path.extname(dirent.name) === ".slp");
-  const total = slpFiles.length;
+  const { total, toLoad, toDelete } = await filterReplays(folder);
+  console.log(`found ${total} files in ${folder}, ${total} are new. ${toDelete.length} will be removed from the DB`);
 
+  if (toDelete.length > 0) {
+    console.log(toDelete);
+    await deleteReplays(toDelete);
+    console.log(`deleted ${toDelete.length} replays from the db`);
+  }
   let fileErrorCount = 0;
-  let fileValidCount = 0;
-  callback(0, total);
+  if (toLoad.length > 0) {
+    const parsed = await parseReplays(toLoad, (count) => callback(count, toLoad.length));
+    fileErrorCount = toLoad.length - parsed.length;
+    await saveReplays(parsed);
+  }
 
-  const process = async (path: string) => {
-    return new Promise<FileResult | null>((resolve) => {
-      setImmediate(async () => {
-        try {
-          const res = await loadFile(path);
-          fileValidCount += 1;
-          callback(fileValidCount, total);
-          resolve(res);
-        } catch (err) {
-          fileErrorCount += 1;
-          resolve(null);
-        }
-      });
-    });
-  };
+  const files = await getFolderReplays(folder);
+  console.log(`loaded ${files.length} replays in ${folder} from the db`);
 
-  const slpGames = (
-    await Promise.all(
-      slpFiles.map((dirent) => {
-        const fullPath = path.resolve(folder, dirent.name);
-        return process(fullPath);
-      }),
-    )
-  ).filter((g) => g !== null) as FileResult[];
-
-  // Indicate that loading is complete
-  callback(total, total);
-
-  return {
-    files: slpGames,
-    fileErrorCount,
-  };
+  return { files, fileErrorCount };
 }

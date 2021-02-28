@@ -1,4 +1,5 @@
 import { colors } from "common/colors";
+import { startReplayServer } from "common/replayBrowser/ReplayServer";
 import { app, BrowserWindow } from "electron";
 import contextMenu from "electron-context-menu";
 import * as path from "path";
@@ -10,6 +11,8 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow: BrowserWindow | null = null;
+
+startReplayServer();
 
 function createMainWindow() {
   const window = new BrowserWindow({

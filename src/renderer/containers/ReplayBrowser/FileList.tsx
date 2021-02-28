@@ -31,8 +31,9 @@ const FileListResults: React.FC<{
   onOpenMenu: (index: number, element: HTMLElement) => void;
   onSelect: (index: number) => void;
   onPlay: (index: number) => void;
+  onPlayerClick: (player: string) => void;
   setScrollRowItem: (row: number) => void;
-}> = ({ scrollRowItem, files, onSelect, onPlay, onOpenMenu, setScrollRowItem }) => {
+}> = ({ scrollRowItem, files, onSelect, onPlay, onPlayerClick, onOpenMenu, setScrollRowItem }) => {
   // Keep a reference to the list so we can control the scroll position
   const listRef = React.createRef<List>();
   // Keep track of the latest scroll position
@@ -50,6 +51,7 @@ const FileListResults: React.FC<{
           style={props.style}
           onSelect={() => onSelect(props.index)}
           onPlay={() => onPlay(props.index)}
+          onPlayerClick={onPlayerClick}
           {...files[props.index]}
         />
       </ErrorBoundary>
@@ -101,7 +103,8 @@ export const FileList: React.FC<{
   onDelete: (filepath: string) => void;
   onSelect: (index: number) => void;
   onPlay: (index: number) => void;
-}> = ({ scrollRowItem = 0, files, onSelect, onPlay, onDelete, setScrollRowItem }) => {
+  onPlayerClick: (player: string) => void;
+}> = ({ scrollRowItem = 0, files, onSelect, onPlay, onPlayerClick, onDelete, setScrollRowItem }) => {
   const [menuItem, setMenuItem] = React.useState<null | {
     index: number;
     anchorEl: HTMLElement;
@@ -139,6 +142,7 @@ export const FileList: React.FC<{
           onOpenMenu={onOpenMenu}
           onSelect={onSelect}
           onPlay={onPlay}
+          onPlayerClick={onPlayerClick}
           files={files}
           scrollRowItem={scrollRowItem}
           setScrollRowItem={setScrollRowItem}

@@ -72,6 +72,7 @@ export interface ReplayFileProps extends FileResult {
   style?: React.CSSProperties;
   onSelect: () => void;
   onPlay: () => void;
+  onPlayerClick: (player: string) => void;
   onOpenMenu: (index: number, element: HTMLElement) => void;
 }
 
@@ -81,6 +82,7 @@ export const ReplayFile: React.FC<ReplayFileProps> = ({
   style,
   onSelect,
   onPlay,
+  onPlayerClick,
   startTime,
   settings,
   name,
@@ -113,7 +115,7 @@ export const ReplayFile: React.FC<ReplayFileProps> = ({
         <div className={classes.details}>
           <div style={{ display: "flex", flexDirection: "row", flex: 1 }}>
             <CardContent className={classes.content}>
-              <TeamElements settings={settings} metadata={metadata} />
+              <TeamElements settings={settings} metadata={metadata} onClick={onPlayerClick} />
             </CardContent>
             <div className={classes.controls}>
               <Tooltip title="View replay">
