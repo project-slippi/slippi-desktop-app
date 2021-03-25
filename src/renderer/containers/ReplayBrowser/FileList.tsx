@@ -84,6 +84,7 @@ const FileListResults: React.FC<{
           onItemsRendered={({ visibleStartIndex }) => {
             setScrollRowRef(visibleStartIndex);
           }}
+          overscanCount={20}
         >
           {Row}
         </List>

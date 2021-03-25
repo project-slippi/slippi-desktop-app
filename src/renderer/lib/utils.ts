@@ -4,6 +4,9 @@ import url from "url";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+const stockIcons: { [id: number]: { [id: number]: string } } = {};
+const stageImgs: { [id: number]: string } = {};
+
 // Fix static folder access in development. For more information see:
 // https://github.com/electron-userland/electron-webpack/issues/99#issuecomment-459251702
 export const getStatic = (val: string): string => {
@@ -22,7 +25,13 @@ export const getCharacterIcon = (characterId: number | null, characterColor: num
   const allColors = charUtils.getCharacterInfo(characterId).colors;
   // Make sure it's a valid color, otherwise use the default color
   const color = characterColor !== null && characterColor <= allColors.length - 1 ? characterColor : 0;
-  return getStatic(`/images/characters/${characterId}/${color}/stock.png`);
+  if (!stockIcons[characterId]) {
+    stockIcons[characterId] = {};
+  }
+  if (!stockIcons[characterId][color]) {
+    stockIcons[characterId][color] = getStatic(`/images/characters/${characterId}/${color}/stock.png`);
+  }
+  return stockIcons[characterId][color];
 };
 
 export const getStageImage = (stageId: number): string => {
@@ -32,8 +41,11 @@ export const getStageImage = (stageId: number): string => {
   } catch (err) {
     console.error(err);
   }
-  const imgSrc = getStatic(`/images/stages/${name}.png`);
-  return imgSrc;
+
+  if (!stageImgs[name]) {
+    stageImgs[name] = getStatic(`/images/stages/${name}.png`);
+  }
+  return stageImgs[name];
 };
 
 export const toOrdinal = (i: number): string => {
