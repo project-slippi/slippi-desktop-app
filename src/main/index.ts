@@ -65,6 +65,14 @@ function createMainWindow() {
     );
   }
 
+  window.on("close", (event) => {
+    // Don't actually close the window on Mac just hide it
+    if (isMac) {
+      event.preventDefault();
+      window.hide();
+    }
+  });
+
   window.on("closed", () => {
     mainWindow = null;
   });
