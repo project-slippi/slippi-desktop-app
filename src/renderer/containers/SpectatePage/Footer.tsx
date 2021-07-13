@@ -29,7 +29,7 @@ export const Footer: React.FC = () => {
       <Tooltip title="Reveal location">
         <IconButton
           size="small"
-          onClick={() => shell.openItem(spectateSlpFolder)}
+          onClick={async () => await shell.openPath(spectateSlpFolder)}
           css={css`
             color: ${colors.purpleLight};
           `}

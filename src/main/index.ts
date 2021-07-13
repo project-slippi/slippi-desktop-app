@@ -46,6 +46,7 @@ function createMainWindow() {
     minWidth: isDevelopment ? undefined : 900,
     backgroundColor: colors.purpleDarker,
     webPreferences: {
+      contextIsolation: false,
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       enableRemoteModule: true,

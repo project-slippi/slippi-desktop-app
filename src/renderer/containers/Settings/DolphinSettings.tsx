@@ -31,7 +31,7 @@ export const DolphinSettings: React.FC<{ dolphinType: DolphinLaunchType }> = ({ 
   const { addToast } = useToasts();
 
   const openDolphinDirectoryHandler = async () => {
-    shell.openItem(dolphinPath);
+    await shell.openPath(dolphinPath);
   };
 
   const configureDolphinHandler = async () => {
