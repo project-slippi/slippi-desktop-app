@@ -12,7 +12,6 @@ import { IsoValidity } from "common/types";
 import React from "react";
 
 import { PathInput } from "@/components/PathInput";
-import { PathInputExtras as PathInputExtras } from "@/components/PathInputExtras";
 import { useIsoVerification } from "@/lib/hooks/useIsoVerification";
 import { useIsoPath, useLaunchMeleeOnPlay, useRootSlpPath, useSpectateSlpPath } from "@/lib/hooks/useSettings";
 
@@ -80,7 +79,7 @@ export const MeleeOptions: React.FC = () => {
       </SettingItem>
       <SettingItem name="Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
         <PathInput
-          value={replayDir}
+          value={replayDir[0].path}
           onSelect={setReplayDir}
           options={{
             properties: ["openDirectory"],
@@ -98,7 +97,6 @@ export const MeleeOptions: React.FC = () => {
           placeholder="No folder set"
         />
       </SettingItem>
-      <PathInputExtras />
     </div>
   );
 };
