@@ -2,21 +2,18 @@ import { FolderResult } from "@replays/types";
 import * as fs from "fs-extra";
 import path from "path";
 
-export function findChild(trees: FolderResult[], childToFind: string): FolderResult | null {
-  for (const tree of trees) {
-    const relativePath = path.relative(tree.fullPath, childToFind);
-    if (!relativePath) {
-      return tree;
-    }
-    const pathMap = relativePath.split(path.sep);
-    if (pathMap.length > 0) {
-      const nextChild = tree.subdirectories.find((dir) => dir.name === pathMap[0]);
-      if (nextChild) {
-        return findChild([nextChild], childToFind);
-      }
+export function findChild(tree: FolderResult, childToFind: string): FolderResult | null {
+  const relativePath = path.relative(tree.fullPath, childToFind);
+  if (!relativePath) {
+    return tree;
+  }
+  const pathMap = relativePath.split(path.sep);
+  if (pathMap.length > 0) {
+    const nextChild = tree.subdirectories.find((dir) => dir.name === pathMap[0]);
+    if (nextChild) {
+      return findChild(nextChild, childToFind);
     }
   }
-
   return null;
 }
 

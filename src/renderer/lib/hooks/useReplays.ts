@@ -52,7 +52,7 @@ const initialState: StoreState = {
   loading: false,
   progress: null,
   files: [],
-  folders: [],
+  folders: null,
   currentRoot: null,
   currentFolder: useSettings.getState().settings.slpDirs[0].path,
   fileErrorCount: 0,
@@ -157,13 +157,14 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
   toggleFolder: (folder) => {
     set((state) =>
       produce(state, (draft) => {
-        const currentTree = draft.folders;
-        if (currentTree) {
-          const child = findChild(currentTree, folder);
-          if (child) {
-            child.collapsed = !child.collapsed;
+        draft.folders?.forEach((currentTree) => {
+          if (currentTree) {
+            var child = findChild(currentTree, folder);
+            if (child) {
+              child.collapsed = !child.collapsed;
+            }
           }
-        }
+        });
       }),
     );
   },
@@ -173,7 +174,7 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
     const rootSlpPath = useSettings.getState().settings.slpDirs[0].path;
 
     let currentTree = folders;
-    if (currentTree?.length == 0 || currentRoot != rootSlpPath) {
+    if (currentTree === null || currentTree.length === 0 || currentRoot !== rootSlpPath) {
       currentTree = [
         {
           name: path.basename(rootSlpPath),
@@ -184,14 +185,16 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
       ];
     }
 
-    const newFolders = await produce(currentTree, async (draft: FolderResult) => {
-      const pathToLoad = folder ?? rootSlpPath;
-      const child = findChild([draft], pathToLoad) ?? draft;
-      const childPaths = path.relative(child.fullPath, pathToLoad);
-      const childrenToExpand = childPaths ? childPaths.split(path.sep) : [];
-      if (child && child.subdirectories.length === 0) {
-        child.subdirectories = await generateSubFolderTree(child.fullPath, childrenToExpand);
-      }
+    const newFolders = await produce(currentTree, async (draft: FolderResult[]) => {
+      draft.forEach((tree) => async () => {
+        var pathToLoad = folder ?? rootSlpPath;
+        var child = findChild(tree, pathToLoad);
+        var childPaths = path.relative(child?.fullPath ?? "", pathToLoad); // should empty string be the default?
+        var childrenToExpand = childPaths ? childPaths.split(path.sep) : [];
+        if (child && child.subdirectories.length === 0) {
+          child.subdirectories = await generateSubFolderTree(child.fullPath, childrenToExpand);
+        }
+      });
     });
 
     set({ folders: newFolders });
