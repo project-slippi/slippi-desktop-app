@@ -15,7 +15,7 @@ type StoreState = {
   loading: boolean;
   progress: Progress | null;
   files: FileResult[];
-  folders: FolderResult[];
+  folders: FolderResult[] | null;
   currentRoot: string | null;
   currentFolder: string;
   fileErrorCount: number;
@@ -173,7 +173,7 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
     const rootSlpPath = useSettings.getState().settings.slpDirs[0].path;
 
     let currentTree = folders;
-    if (currentTree.length == 0 || currentRoot != rootSlpPath) {
+    if (currentTree?.length == 0 || currentRoot != rootSlpPath) {
       currentTree = [
         {
           name: path.basename(rootSlpPath),
@@ -226,7 +226,9 @@ export const useReplaySelection = () => {
   useMousetrap("shift", () => setShiftHeld(false), "keyup");
 
   const toggleFiles = (fileNames: string[], mode: "toggle" | "select" | "deselect" = "toggle") => {
+    console.log("test1");
     const newSelection = Array.from(selectedFiles);
+    console.log("test2");
 
     fileNames.forEach((fileName) => {
       const alreadySelectedIndex = newSelection.findIndex((f) => f === fileName);
