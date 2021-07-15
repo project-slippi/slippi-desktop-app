@@ -13,9 +13,10 @@ import React from "react";
 
 import { PathInput } from "@/components/PathInput";
 import { useIsoVerification } from "@/lib/hooks/useIsoVerification";
-import { useIsoPath, useLaunchMeleeOnPlay, useRootSlpPath, useSpectateSlpPath } from "@/lib/hooks/useSettings";
+import { useIsoPath, useLaunchMeleeOnPlay, useSlpDirs, useSpectateSlpPath } from "@/lib/hooks/useSettings";
 
 import { SettingItem } from "./SettingItem";
+import { PathInputMultiple } from "@/components/PathInputMultiple";
 
 const renderValidityStatus = (isoValidity: IsoValidity) => {
   switch (isoValidity) {
@@ -36,7 +37,7 @@ export const MeleeOptions: React.FC = () => {
   const isoValidity = useIsoVerification((state) => state.validity);
   const [isoPath, setIsoPath] = useIsoPath();
   const [launchMeleeOnPlay, setLaunchMelee] = useLaunchMeleeOnPlay();
-  const [replayDir, setReplayDir] = useRootSlpPath();
+  const [replayDirs, setReplayDir] = useSlpDirs();
   const [spectateDir, setSpectateDir] = useSpectateSlpPath();
 
   const onLaunchMeleeChange = async (value: string) => {
@@ -79,7 +80,17 @@ export const MeleeOptions: React.FC = () => {
       </SettingItem>
       <SettingItem name="Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
         <PathInput
-          value={replayDir[0].path}
+          value={replayDirs[0].path}
+          onSelect={setReplayDir}
+          options={{
+            properties: ["openDirectory"],
+          }}
+          placeholder="No folder set"
+        />
+      </SettingItem>
+      <SettingItem name="NEW Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
+        <PathInputMultiple
+          values={replayDirs}
           onSelect={setReplayDir}
           options={{
             properties: ["openDirectory"],
