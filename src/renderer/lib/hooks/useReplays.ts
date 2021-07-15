@@ -159,7 +159,7 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
       produce(state, (draft) => {
         draft.folders?.forEach((currentTree) => {
           if (currentTree) {
-            let child = findChild(currentTree, folder);
+            const child = findChild(currentTree, folder);
             if (child) {
               child.collapsed = !child.collapsed;
             }
@@ -187,10 +187,10 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
 
     const newFolders = await produce(currentTree, async (draft: FolderResult[]) => {
       draft.forEach((tree) => async () => {
-        let pathToLoad = folder ?? rootSlpPath;
-        let child = findChild(tree, pathToLoad);
-        let childPaths = path.relative(child?.fullPath ?? "", pathToLoad); // should empty string be the default?
-        let childrenToExpand = childPaths ? childPaths.split(path.sep) : [];
+        const pathToLoad = folder ?? rootSlpPath;
+        const child = findChild(tree, pathToLoad);
+        const childPaths = path.relative(child?.fullPath ?? "", pathToLoad); // should empty string be the default?
+        const childrenToExpand = childPaths ? childPaths.split(path.sep) : [];
         if (child && child.subdirectories.length === 0) {
           child.subdirectories = await generateSubFolderTree(child.fullPath, childrenToExpand);
         }
