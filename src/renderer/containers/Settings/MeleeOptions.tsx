@@ -37,7 +37,7 @@ export const MeleeOptions: React.FC = () => {
   const isoValidity = useIsoVerification((state) => state.validity);
   const [isoPath, setIsoPath] = useIsoPath();
   const [launchMeleeOnPlay, setLaunchMelee] = useLaunchMeleeOnPlay();
-  const [replayDirs, setReplayDir] = useSlpDirs();
+  const [replayDirs, setReplayDirs] = useSlpDirs();
   const [spectateDir, setSpectateDir] = useSpectateSlpPath();
 
   const onLaunchMeleeChange = async (value: string) => {
@@ -78,20 +78,20 @@ export const MeleeOptions: React.FC = () => {
           <FormControlLabel value={false} label="Launch Dolphin" control={<Radio />} />
         </RadioGroup>
       </SettingItem>
-      <SettingItem name="Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
+      {/*<SettingItem name="Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
         <PathInput
           value={replayDirs[0].path}
-          onSelect={setReplayDir}
+          onSelect={setReplayDirs}
           options={{
             properties: ["openDirectory"],
           }}
           placeholder="No folder set"
         />
-      </SettingItem>
+        </SettingItem>*/}
       <SettingItem name="NEW Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
         <PathInputMultiple
           values={replayDirs}
-          onSelect={setReplayDir}
+          onSelect={setReplayDirs}
           options={{
             properties: ["openDirectory"],
           }}

@@ -10,7 +10,12 @@ import { useState } from "react";
 import Tooltip from "@material-ui/core/Tooltip";
 
 export interface PathInputMultipleProps {
-  onSelect: (filePath: string) => void;
+  onSelect: (
+    dirs: {
+      path: string;
+      isDefault?: boolean | undefined;
+    }[],
+  ) => void;
   placeholder?: string;
   values?: {
     path: string;
@@ -30,22 +35,31 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
     if (result.canceled || res.length === 0) {
       return;
     }
-    onSelect(res[0]);
+    updateCheckboxSelections((arr) => {
+      const newArr = arr;
+      newArr.push(false);
+      return [...newArr];
+    });
+
+    /*onSelect((dirs: any) => {
+      const newArr = dirs;
+      newArr.push({ path: res[0] });
+      return [...newArr];
+    });*/
   };
 
   const onRemoveClick = async () => {
+    console.log(checkboxSelections);
     return;
   };
 
-  const selections = Array(values?.length).fill(false);
-
-  const [activeSelections, toggle] = useState(selections);
+  const [checkboxSelections, updateCheckboxSelections] = useState(Array(values?.length).fill(false));
 
   const onToggle = (index: number) => {
-    toggle((arr) => {
+    updateCheckboxSelections((arr) => {
       const newArr = arr;
       newArr[index] = !newArr[index];
-      return newArr;
+      return [...newArr];
     });
   };
 
@@ -54,7 +68,7 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
       <MultiRowEntry key={index}>
         <MultiRowInput value={value.path} disabled={true} endAdornment={null} />
         <Check>
-          <Checkbox label={""} checked={activeSelections[index]} onChange={() => onToggle(index)} />
+          <Checkbox label={""} checked={checkboxSelections[index]} onChange={() => onToggle(index)} />
         </Check>
         {value.isDefault ? (
           <DefaultMarker>
@@ -79,20 +93,14 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
     <Outer>
       <InputContainer>{Rows}</InputContainer>
       <ButtonGroup>
-        <Button
-          color="secondary"
-          variant="contained"
-          onClick={onAddClick}
-          disabled={false}
-          style={{ margin: "2.5px", padding: "0px" }}
-        >
+        <Button color="secondary" variant="contained" onClick={onAddClick} style={{ margin: "2.5px", padding: "0px" }}>
           Add
         </Button>
         <Button
           color="secondary"
           variant="contained"
           onClick={onRemoveClick}
-          disabled={true}
+          disabled={checkboxSelections.indexOf(true) === -1}
           style={{ margin: "2.5px", padding: "0px", paddingLeft: "10px", paddingRight: "10px" }}
         >
           Remove
