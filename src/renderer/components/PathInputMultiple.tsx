@@ -21,8 +21,8 @@ export interface PathInputMultipleProps {
   disabled?: boolean;
 }
 
-export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMultipleProps>((props, ref) => {
-  const { values, placeholder, endAdornment, onSelect, options, disabled } = props;
+export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMultipleProps>((props) => {
+  const { values, onSelect, options } = props;
 
   const onAddClick = async () => {
     const result = await remote.dialog.showOpenDialog({ properties: ["openFile"], ...options });
@@ -33,24 +33,28 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
     onSelect(res[0]);
   };
 
-  const onRemoveClick = async () => {};
+  const onRemoveClick = async () => {
+    return;
+  };
 
-  let selections = Array(values?.length).fill(false);
+  const selections = Array(values?.length).fill(false);
 
-  let Rows = values?.map((value, index) => {
-    const [checkState, toggle] = useState(selections[index]);
+  const [activeSelections, toggle] = useState(selections);
 
+  const onToggle = (index: number) => {
+    toggle((arr) => {
+      const newArr = arr;
+      newArr[index] = !newArr[index];
+      return newArr;
+    });
+  };
+
+  const Rows = values?.map((value, index) => {
     return (
       <MultiRowEntry key={index}>
         <MultiRowInput value={value.path} disabled={true} endAdornment={null} />
         <Check>
-          <Checkbox
-            label={""}
-            checked={checkState}
-            onChange={() => {
-              toggle(!checkState);
-            }}
-          />
+          <Checkbox label={""} checked={activeSelections[index]} onChange={() => onToggle(index)} />
         </Check>
         {value.isDefault ? (
           <DefaultMarker>
@@ -79,7 +83,7 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
           color="secondary"
           variant="contained"
           onClick={onAddClick}
-          disabled={disabled}
+          disabled={false}
           style={{ margin: "2.5px", padding: "0px" }}
         >
           Add
@@ -88,7 +92,7 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
           color="secondary"
           variant="contained"
           onClick={onRemoveClick}
-          disabled={selections.filter((elem) => elem === true).length < 1}
+          disabled={true}
           style={{ margin: "2.5px", padding: "0px", paddingLeft: "10px", paddingRight: "10px" }}
         >
           Remove
