@@ -38,6 +38,7 @@
     "firebase": "^8.1.2",
     "fs-extra": "^9.0.1",
     "graphql": "^15.4.0",
+    "html-to-image": "^1.6.2",
     "immer": "^8.0.0",
     "lodash": "^4.17.20",
     "medium-json-feed": "^0.0.3",

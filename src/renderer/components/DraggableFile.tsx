@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { ipcRenderer } from "electron";
 import React from "react";
+import * as htmlToImage from "html-to-image";
 
 const Outer = styled.div`
   color: inherit;
@@ -23,19 +24,29 @@ export interface DraggableFileProps {
 export const DraggableFile: React.FC<DraggableFileProps> = ({ children, filePaths, className, style }) => {
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+
     if (filePaths.length > 0) {
-      ipcRenderer.send("onDragStart", filePaths);
+      // If we have selected non-zero files for dragging, update the count and then convert the div to a dataURL to send
+      document.getElementById("dragCount")!.innerHTML = filePaths.length > 1 ? filePaths.length.toString() : "";
+
+      void htmlToImage.toPng(document.getElementById("dragCountParent") as HTMLDivElement).then(function (dataURL) {
+        ipcRenderer.send("onDragStart", filePaths, dataURL);
+      });
     }
   };
 
   return (
-    <Outer
-      className={className}
-      style={style}
-      onDragStart={(e) => handleDragStart(e)}
-      onClick={(e) => e.preventDefault()}
-    >
-      {children}
-    </Outer>
+    <div>
+      {
+        <Outer
+          className={className}
+          style={style}
+          onDragStart={(e) => handleDragStart(e)}
+          onClick={(e) => e.preventDefault()}
+        >
+          {children}
+        </Outer>
+      }
+    </div>
   );
 };

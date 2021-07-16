@@ -8,6 +8,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 import FolderIcon from "@material-ui/icons/Folder";
 import SearchIcon from "@material-ui/icons/Search";
+import FileIcon from "../../../../static/images/file.png";
 import { colors } from "common/colors";
 import { shell } from "electron";
 import React from "react";
@@ -174,6 +175,44 @@ export const ReplayBrowser: React.FC = () => {
             </div>
           }
         />
+      </div>
+
+      <div
+        id={"dragCountGrandParent"}
+        style={{
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          id={"dragCountParent"}
+          style={{
+            display: "inline-block",
+            border: "0px solid red",
+            position: "absolute",
+          }}
+        >
+          <img src={FileIcon} />
+          <div
+            style={{
+              color: "white",
+              background: "red",
+              fontSize: "15px",
+              display: "inline-block",
+              borderRadius: "11px",
+              paddingLeft: "4.77px" /* derived from π lol */,
+              paddingRight: "4.77px",
+              marginRight: "5px",
+              marginTop: "1px",
+              position: "absolute",
+              right: 0,
+              top: 0,
+            }}
+            id={"dragCount"}
+          >
+            7124
+          </div>
+        </div>
       </div>
 
       <Footer>

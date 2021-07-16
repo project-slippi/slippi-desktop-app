@@ -32,12 +32,17 @@ import { verifyIso } from "./verifyIso";
 const LINES_TO_READ = 200;
 
 export function setupListeners() {
-  ipcMain.on("onDragStart", (event, files: string[]) => {
+  ipcMain.on("onDragStart", (event, files: string[], imageURL: string) => {
+    const icon =
+      imageURL.length > 0
+        ? nativeImage.createFromDataURL(imageURL)
+        : nativeImage.createFromPath(path.join(__static, "images", "file.png"));
+
     // The Electron.Item type declaration is missing the files attribute
     // so we'll just cast it as unknown for now.
     event.sender.startDrag(({
       files,
-      icon: nativeImage.createFromPath(path.join(__static, "images", "file.png")),
+      icon: icon,
     } as unknown) as Electron.Item);
   });
 
