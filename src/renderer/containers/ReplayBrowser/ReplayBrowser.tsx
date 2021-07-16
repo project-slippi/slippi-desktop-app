@@ -44,7 +44,7 @@ export const ReplayBrowser: React.FC = () => {
   const fileSelection = useReplaySelection();
   const init = useReplays((store) => store.init);
   const fileErrorCount = useReplays((store) => store.fileErrorCount);
-  const rootSlpPath = useSettings((store) => store.settings.rootSlpPath);
+  const rootSlpPath = useSettings((store) => store.settings.slpDirs);
   const { addToast } = useToasts();
 
   const resetFilter = useReplayFilter((store) => store.resetFilter);
@@ -112,7 +112,7 @@ export const ReplayBrowser: React.FC = () => {
           leftSide={
             <List dense={true} style={{ flex: 1, padding: 0 }}>
               <div style={{ position: "relative", minHeight: "100%" }}>
-                <FolderTreeNode {...folders} />
+                <FolderTreeNode {...folders[0]} />
                 {loading && (
                   <div
                     style={{

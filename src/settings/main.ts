@@ -29,7 +29,7 @@ ipc_setIsoPath.main!.handle(async ({ isoPath }) => {
 });
 
 ipc_setRootSlpPath.main!.handle(async ({ path }) => {
-  await settingsManager.setRootSlpPath(path);
+  await settingsManager.setSlpDirs(path);
   return { success: true };
 });
 

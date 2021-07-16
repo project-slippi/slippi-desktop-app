@@ -37,7 +37,7 @@ export interface FilterToolbarProps {
 export const FilterToolbar = React.forwardRef<HTMLInputElement, FilterToolbarProps>((props, ref) => {
   const { disabled } = props;
   const init = useReplays((store) => store.init);
-  const rootSlpPath = useSettings((store) => store.settings.rootSlpPath);
+  const rootSlpDirs = useSettings((store) => store.settings.slpDirs);
   const currentFolder = useReplays((store) => store.currentFolder);
   const storeSearchText = useReplayFilter((store) => store.searchText);
   const setStoreSearchText = useReplayFilter((store) => store.setSearchText);
@@ -51,8 +51,8 @@ export const FilterToolbar = React.forwardRef<HTMLInputElement, FilterToolbarPro
   const { addToast } = useToasts();
 
   const refresh = React.useCallback(() => {
-    init(rootSlpPath, true, currentFolder).catch((err) => addToast(err.message, { appearance: "error" }));
-  }, [rootSlpPath, init, currentFolder, addToast]);
+    init(rootSlpDirs, true, currentFolder).catch((err) => addToast(err.message, { appearance: "error" }));
+  }, [rootSlpDirs, init, currentFolder, addToast]);
 
   const debounceChange = debounce((text: string) => {
     setStoreSearchText(text);

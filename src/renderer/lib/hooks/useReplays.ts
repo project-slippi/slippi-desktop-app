@@ -15,7 +15,7 @@ type StoreState = {
   loading: boolean;
   progress: Progress | null;
   files: FileResult[];
-  folders: FolderResult | null;
+  folders: FolderResult[] | null;
   currentRoot: string | null;
   currentFolder: string;
   fileErrorCount: number;
@@ -29,7 +29,14 @@ type StoreState = {
 };
 
 type StoreReducers = {
-  init: (rootFolder: string, forceReload?: boolean, currentFolder?: string) => Promise<void>;
+  init: (
+    rootSlpFolders: Array<{
+      path: string;
+      isDefault?: boolean;
+    }>,
+    forceReload?: boolean,
+    currentFolder?: string,
+  ) => Promise<void>;
   selectFile: (file: FileResult, index?: number | null, total?: number | null) => void;
   clearSelectedFile: () => void;
   removeFile: (filePath: string) => void;
@@ -47,7 +54,7 @@ const initialState: StoreState = {
   files: [],
   folders: null,
   currentRoot: null,
-  currentFolder: useSettings.getState().settings.rootSlpPath,
+  currentFolder: useSettings.getState().settings.slpDirs[0].path,
   fileErrorCount: 0,
   scrollRowItem: 0,
   selectedFiles: [],
@@ -62,23 +69,29 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
   // Set the initial state
   ...initialState,
 
-  init: async (rootFolder, forceReload, currentFolder) => {
+  init: async (rootSlpFolders, forceReload, currentFolder) => {
     const { currentRoot, loadFolder, loadDirectoryList } = get();
-    if (currentRoot === rootFolder && !forceReload) {
+    if (currentRoot === rootSlpFolders[0]?.path && !forceReload) {
       return;
     }
 
     set({
-      currentRoot: rootFolder,
-      folders: {
-        name: path.basename(rootFolder),
-        fullPath: rootFolder,
-        subdirectories: [],
-        collapsed: false,
-      },
+      currentRoot: rootSlpFolders[0]?.path,
+      folders: rootSlpFolders.map(
+        (folder) =>
+          ({
+            name: path.basename(folder.path),
+            fullPath: folder.path,
+            subdirectories: [],
+            collapsed: false,
+          } as FolderResult),
+      ),
     });
 
-    await Promise.all([loadDirectoryList(currentFolder ?? rootFolder), loadFolder(currentFolder ?? rootFolder, true)]);
+    await Promise.all([
+      loadDirectoryList(currentFolder ?? rootSlpFolders[0]?.path),
+      loadFolder(currentFolder ?? rootSlpFolders[0]?.path, true),
+    ]);
   },
 
   selectFile: (file, index = null, total = null) => {
@@ -144,39 +157,44 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
   toggleFolder: (folder) => {
     set((state) =>
       produce(state, (draft) => {
-        const currentTree = draft.folders;
-        if (currentTree) {
-          const child = findChild(currentTree, folder);
-          if (child) {
-            child.collapsed = !child.collapsed;
+        draft.folders?.forEach((currentTree) => {
+          if (currentTree) {
+            const child = findChild(currentTree, folder);
+            if (child) {
+              child.collapsed = !child.collapsed;
+            }
           }
-        }
+        });
       }),
     );
   },
 
   loadDirectoryList: async (folder?: string) => {
     const { currentRoot, folders } = get();
-    const rootSlpPath = useSettings.getState().settings.rootSlpPath;
+    const rootSlpPath = useSettings.getState().settings.slpDirs[0].path;
 
     let currentTree = folders;
-    if (currentTree === null || currentRoot !== rootSlpPath) {
-      currentTree = {
-        name: path.basename(rootSlpPath),
-        fullPath: rootSlpPath,
-        subdirectories: [],
-        collapsed: false,
-      };
+    if (currentTree === null || currentTree.length === 0 || currentRoot !== rootSlpPath) {
+      currentTree = [
+        {
+          name: path.basename(rootSlpPath),
+          fullPath: rootSlpPath,
+          subdirectories: [],
+          collapsed: false,
+        },
+      ];
     }
 
-    const newFolders = await produce(currentTree, async (draft: FolderResult) => {
-      const pathToLoad = folder ?? rootSlpPath;
-      const child = findChild(draft, pathToLoad) ?? draft;
-      const childPaths = path.relative(child.fullPath, pathToLoad);
-      const childrenToExpand = childPaths ? childPaths.split(path.sep) : [];
-      if (child && child.subdirectories.length === 0) {
-        child.subdirectories = await generateSubFolderTree(child.fullPath, childrenToExpand);
-      }
+    const newFolders = await produce(currentTree, async (draft: FolderResult[]) => {
+      draft.forEach((tree) => async () => {
+        const pathToLoad = folder ?? rootSlpPath;
+        const child = findChild(tree, pathToLoad);
+        const childPaths = path.relative(child?.fullPath ?? "", pathToLoad); // should empty string be the default?
+        const childrenToExpand = childPaths ? childPaths.split(path.sep) : [];
+        if (child && child.subdirectories.length === 0) {
+          child.subdirectories = await generateSubFolderTree(child.fullPath, childrenToExpand);
+        }
+      });
     });
 
     set({ folders: newFolders });
@@ -211,7 +229,9 @@ export const useReplaySelection = () => {
   useMousetrap("shift", () => setShiftHeld(false), "keyup");
 
   const toggleFiles = (fileNames: string[], mode: "toggle" | "select" | "deselect" = "toggle") => {
+    console.log("test1");
     const newSelection = Array.from(selectedFiles);
+    console.log("test2");
 
     fileNames.forEach((fileName) => {
       const alreadySelectedIndex = newSelection.findIndex((f) => f === fileName);

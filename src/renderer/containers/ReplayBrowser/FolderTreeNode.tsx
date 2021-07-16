@@ -85,7 +85,7 @@ export const FolderTreeNode: React.FC<FolderTreeNodeProps> = ({
           primary={name}
         />
       </ListItem>
-      {subdirectories.length === 0 || collapsed ? null : (
+      {hasChildren || collapsed ? null : (
         <List dense={true} style={{ padding: 0 }}>
           {subdirectories.map((f) => (
             <FolderTreeNode nestLevel={nestLevel + 1} key={f.fullPath} {...f} />

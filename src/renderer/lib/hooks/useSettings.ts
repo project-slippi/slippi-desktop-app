@@ -4,7 +4,7 @@ import {
   ipc_setLaunchMeleeOnPlay,
   ipc_setNetplayDolphinPath,
   ipc_setPlaybackDolphinPath,
-  ipc_setRootSlpPath,
+  ipc_setSlpDirs,
   ipc_setSpectateSlpPath,
 } from "@settings/ipc";
 import { AppSettings } from "@settings/types";
@@ -37,15 +37,15 @@ export const useIsoPath = () => {
   return [isoPath, setPath] as const;
 };
 
-export const useRootSlpPath = () => {
-  const rootSlpPath = useSettings((store) => store.settings.rootSlpPath);
-  const setReplayDir = async (path: string) => {
-    const setResult = await ipc_setRootSlpPath.renderer!.trigger({ path });
+export const useSlpDirs = () => {
+  const rootSlpPath = useSettings((store) => store.settings.slpDirs);
+  const setSlpReplayDirs = async (dirs: string[]) => {
+    const setResult = await ipc_setSlpDirs.renderer!.trigger({ dirs });
     if (!setResult.result) {
-      throw new Error("Error setting root SLP path");
+      throw new Error("Error setting root SLP paths");
     }
   };
-  return [rootSlpPath, setReplayDir] as const;
+  return [rootSlpPath, setSlpReplayDirs] as const;
 };
 
 export const useSpectateSlpPath = () => {
