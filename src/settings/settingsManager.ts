@@ -51,7 +51,7 @@ export class SettingsManager {
 
   public async setSlpDirs(slpDir: string): Promise<void> {
     const slpDirs = this.get().settings.slpDirs;
-    await this._set("settings.slpDirs", slpDirs.concat({ path: slpDir }));
+    //await this._set("settings.slpDirs", slpDirs.concat({ path: slpDir }));
   }
 
   public async setSpectateSlpPath(slpPath: string): Promise<void> {

@@ -39,12 +39,7 @@ export const useIsoPath = () => {
 
 export const useSlpDirs = () => {
   const rootSlpPath = useSettings((store) => store.settings.slpDirs);
-  const setSlpReplayDirs = async (
-    dirs: {
-      path: string;
-      isDefault?: boolean | undefined;
-    }[],
-  ) => {
+  const setSlpReplayDirs = async (dirs: string[]) => {
     const setResult = await ipc_setSlpDirs.renderer!.trigger({ dirs });
     if (!setResult.result) {
       throw new Error("Error setting root SLP paths");

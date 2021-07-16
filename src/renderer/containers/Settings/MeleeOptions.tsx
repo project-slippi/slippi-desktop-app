@@ -90,7 +90,7 @@ export const MeleeOptions: React.FC = () => {
         </SettingItem>*/}
       <SettingItem name="NEW Netplay SLP Directory" description="The folder where your SLP replays should be saved.">
         <PathInputMultiple
-          values={replayDirs}
+          paths={replayDirs}
           onSelect={setReplayDirs}
           options={{
             properties: ["openDirectory"],

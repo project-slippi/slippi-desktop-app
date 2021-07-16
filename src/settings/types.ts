@@ -17,11 +17,9 @@ export type AppSettings = {
   connections: StoredConnection[];
   settings: {
     isoPath: string | null;
-    slpDirs: Array<{
-      path: string;
-      isDefault?: boolean;
-    }>;
+    localSlpPath: string;
     spectateSlpPath: string;
+    slpDirs: Array<string>;
     netplayDolphinPath: string;
     playbackDolphinPath: string;
     launchMeleeOnPlay: boolean;

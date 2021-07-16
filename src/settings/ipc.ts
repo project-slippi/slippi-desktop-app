@@ -5,18 +5,7 @@ import { AppSettings, StoredConnection } from "./types";
 
 export const ipc_setIsoPath = makeEndpoint.main("setIsoPath", <{ isoPath: string | null }>_, <SuccessPayload>_);
 
-export const ipc_setSlpDirs = makeEndpoint.main(
-  "ipc_setSlpDirs",
-  <
-    {
-      dirs: {
-        path: string;
-        isDefault?: boolean | undefined;
-      }[];
-    }
-  >_,
-  <SuccessPayload>_,
-);
+export const ipc_setSlpDirs = makeEndpoint.main("ipc_setSlpDirs", <{ dirs: string[] }>_, <SuccessPayload>_);
 
 export const ipc_setSpectateSlpPath = makeEndpoint.main("setSpectateSlpPath", <{ path: string }>_, <SuccessPayload>_);
 

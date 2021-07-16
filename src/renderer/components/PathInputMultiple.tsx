@@ -10,24 +10,16 @@ import { useState } from "react";
 import Tooltip from "@material-ui/core/Tooltip";
 
 export interface PathInputMultipleProps {
-  onSelect: (
-    dirs: {
-      path: string;
-      isDefault?: boolean | undefined;
-    }[],
-  ) => void;
+  onSelect: (paths: string[]) => void;
   placeholder?: string;
-  values?: {
-    path: string;
-    isDefault?: boolean | undefined;
-  }[];
+  paths: string[];
   options?: OpenDialogOptions;
   endAdornment?: JSX.Element;
   disabled?: boolean;
 }
 
 export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMultipleProps>((props) => {
-  const { values, onSelect, options } = props;
+  const { paths, onSelect, options } = props;
 
   const onAddClick = async () => {
     const result = await remote.dialog.showOpenDialog({ properties: ["openFile"], ...options });
@@ -53,7 +45,7 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
     return;
   };
 
-  const [checkboxSelections, updateCheckboxSelections] = useState(Array(values?.length).fill(false));
+  const [checkboxSelections, updateCheckboxSelections] = useState(Array(paths?.length).fill(false));
 
   const onToggle = (index: number) => {
     updateCheckboxSelections((arr) => {
@@ -63,28 +55,13 @@ export const PathInputMultiple = React.forwardRef<HTMLInputElement, PathInputMul
     });
   };
 
-  const Rows = values?.map((value, index) => {
+  const Rows = paths?.map((path, index) => {
     return (
       <MultiRowEntry key={index}>
-        <MultiRowInput value={value.path} disabled={true} endAdornment={null} />
+        <MultiRowInput value={path} disabled={true} endAdornment={null} />
         <Check>
           <Checkbox label={""} checked={checkboxSelections[index]} onChange={() => onToggle(index)} />
         </Check>
-        {value.isDefault ? (
-          <DefaultMarker>
-            <Tooltip
-              disableHoverListener={false}
-              placement={"left"}
-              title="Default directory - new SLP replays are saved here"
-            >
-              <div>
-                <Grade />
-              </div>
-            </Tooltip>
-          </DefaultMarker>
-        ) : (
-          ""
-        )}
       </MultiRowEntry>
     );
   });
