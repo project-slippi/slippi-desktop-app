@@ -170,3 +170,33 @@ async function bootToCss(globalIniPath: string, localIniPath: string, enable: bo
 
   localIni.save(localIniPath);
 }
+
+export async function loadCodes(dolphinType: DolphinLaunchType, iniName: string) {
+  const sysIniPath = path.join(await findSysFolder(dolphinType), "GameSettings", iniName);
+  const userIniPath = path.join(await findUserFolder(dolphinType), "GameSettings", getUserIni(iniName));
+  const sysIni = new IniFile();
+  await sysIni.load(sysIniPath, false);
+  const userIni = new IniFile();
+  if (await fs.pathExists(userIniPath)) {
+    await userIni.load(userIniPath, false);
+  } else {
+    //create the iniFile if it does not exist
+    fs.writeFile(userIniPath, "", (err) => console.log(err));
+  }
+  return loadGeckoCodes(sysIni, userIni);
+}
+
+//find out the appropriate user ini file given the sys ini file
+export function getUserIni(sysIniName: string) {
+  switch (sysIniName) {
+    case "GALE01r2.ini": {
+      return "GALE01.ini";
+    }
+    case "GALJ01r2.ini": {
+      return "GALJ01.ini";
+    }
+    default: {
+      return sysIniName;
+    }
+  }
+}

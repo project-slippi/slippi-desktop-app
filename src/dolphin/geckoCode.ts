@@ -10,6 +10,12 @@ export interface GeckoCode {
   userDefined: boolean;
 }
 
+export interface TruncGeckoCode {
+  name: string;
+  enabled: boolean;
+  userDefined: boolean;
+}
+
 // this is very similar to LoadCodes in GeckoCodeConfig.cpp, but skips the address and data because we don't need them
 export function loadGeckoCodes(globalIni: IniFile, localIni?: IniFile): GeckoCode[] {
   const gcodes: GeckoCode[] = [];
@@ -118,7 +124,7 @@ function makeGeckoCode(code: GeckoCode, lines: string[]) {
 
   lines.push(makeGeckoCodeTitle(code));
 
-  code.notes.forEach((line) => lines.push(`* ${line}`));
+  code.notes.forEach((line) => lines.push(`*${line}`));
 
   code.codeLines.forEach((line) => lines.push(line));
 }
@@ -135,7 +141,72 @@ export function saveCodes(iniFile: IniFile, codes: GeckoCode[]) {
     makeGeckoCode(code, lines);
   });
 
-  iniFile.setLines("Gecko", lines);
   iniFile.setLines("Gecko_Enabled", enabledLines);
   iniFile.setLines("Gecko_Disabled", disabledLines);
+  iniFile.setLines("Gecko", lines);
+}
+
+export function makeGeckoCodeFromRaw(rawGecko: string) {
+  const rawGeckoLines = rawGecko.split("\n");
+  let newCode: GeckoCode = {
+    name: "",
+    creator: "",
+    enabled: true,
+    defaultEnabled: false,
+    userDefined: true,
+    notes: [],
+    codeLines: [],
+  };
+
+  //fill out gecko info
+  rawGeckoLines.forEach((line) => {
+    switch (line[0]) {
+      // code name
+      case "$": {
+        line = line.slice(1); // cut out the $
+
+        const creatorMatch = line.match(/\[(.*?)\]/); // searches for brackets, catches anything inside them
+        const creator = creatorMatch !== null ? creatorMatch[1] : creatorMatch;
+        const name = creator ? line.split("[")[0] : line;
+
+        newCode = {
+          ...newCode,
+          name: name.trim(),
+          creator: creator,
+          notes: [],
+          codeLines: [],
+        };
+        break;
+      }
+      // comments
+      case "*": {
+        newCode.notes.push(line.slice(1));
+        break;
+      }
+      default: {
+        newCode.codeLines.push(line);
+      }
+    }
+  });
+  return newCode;
+}
+
+export function removeGeckoCode(geckoCodeName: string, codes: GeckoCode[]) {
+  return codes.filter((code) => code.name !== geckoCodeName);
+}
+
+export function geckoCodeToRaw(code: GeckoCode) {
+  let rawGecko = makeGeckoCodeTitle(code);
+  code.notes.forEach((line) => (rawGecko = rawGecko.concat("\n", `*${line}`)));
+  code.codeLines.forEach((line) => (rawGecko = rawGecko.concat("\n", line)));
+  return rawGecko;
+}
+
+export function setEnabledDisabledFromTCodes(gCodes: GeckoCode[], tCodes: TruncGeckoCode[]) {
+  tCodes.forEach((tCode) => {
+    const gCodeIndex = gCodes.findIndex((gCode) => gCode.name === tCode.name);
+    if (gCodeIndex !== -1) {
+      gCodes[gCodeIndex].enabled = tCode.enabled;
+    }
+  });
 }

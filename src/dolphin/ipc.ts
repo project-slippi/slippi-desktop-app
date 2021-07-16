@@ -1,5 +1,6 @@
 import { _, EmptyPayload, makeEndpoint, SuccessPayload } from "../ipc";
 import { DolphinLaunchType, PlayKey, ReplayQueueItem } from "./types";
+import { GeckoCode, TruncGeckoCode } from "./geckoCode";
 
 // Handlers
 
@@ -48,6 +49,42 @@ export const ipc_importDolphinSettings = makeEndpoint.main(
   "importDolphinSettings",
   <{ toImportDolphinPath: string; type: DolphinLaunchType }>_,
   <SuccessPayload>_,
+);
+
+export const ipc_fetchGeckoCodes = makeEndpoint.main(
+  "fetchGeckoCodes",
+  <{ dolphinType: DolphinLaunchType; iniName: string }>_,
+  <{ tCodes: TruncGeckoCode[] }>_,
+);
+
+export const ipc_fetchSysInis = makeEndpoint.main(
+  "fetchSysInis",
+  <{ dolphinType: DolphinLaunchType }>_,
+  <{ sysInis: string[] }>_,
+);
+
+export const ipc_toggleGeckos = makeEndpoint.main(
+  "toggleGeckos",
+  <{ tCodes: TruncGeckoCode[]; iniName: string; dolphinType: DolphinLaunchType }>_,
+  <SuccessPayload>_,
+);
+
+export const ipc_deleteGecko = makeEndpoint.main(
+  "deleteGecko",
+  <{ geckoCodeName: string; iniName: string; dolphinType: DolphinLaunchType }>_,
+  <SuccessPayload>_,
+);
+
+export const ipc_addGeckoCode = makeEndpoint.main(
+  "addGeckoCode",
+  <{ gCode: GeckoCode; iniName: string; dolphinType: DolphinLaunchType }>_,
+  <SuccessPayload>_,
+);
+
+export const ipc_convertGeckoToRaw = makeEndpoint.main(
+  "convertGeckoToRaw",
+  <{ geckoCodeName: string; iniName: string; dolphinType: DolphinLaunchType }>_,
+  <{ rawGecko: string }>_,
 );
 
 // Events
